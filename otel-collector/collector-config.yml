@@ -18,7 +18,7 @@ processors:
 
 exporters:
   # OTLP export (this is the TASK TARGET)
-  otlp:
+  otlp_grpc:
     endpoint: "localhost:4317"
     tls:
       insecure: true
@@ -35,5 +35,5 @@ service:
     metrics:
       receivers: [prometheus]
       processors: [metricstransform, batch]
-      exporters: [otlp, prometheus, debug]
+      exporters: [otlp_grpc, prometheus, debug]
 
