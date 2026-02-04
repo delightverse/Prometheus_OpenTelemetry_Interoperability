@@ -1,0 +1,39 @@
+---
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'fastapi-otel-scrape'
+          static_configs:
+            - targets: ['fastapi:8000']
+          metrics_path: /metrics
+
+processors:
+  batch: {}
+  metricstransform:
+    transforms:
+      - include: 'http_request_duration_seconds'
+        action: update
+        new_name: 'fastapi_http_request_latency_seconds'
+
+exporters:
+  # OTLP export (this is the TASK TARGET)
+  otlp:
+    endpoint: "localhost:4317"
+    tls:
+      insecure: true
+
+  # Prometheus exporter (for browser verification)
+  prometheus:
+    endpoint: "0.0.0.0:9464"
+
+# Debug exporter (replaces logging)
+  debug: {}
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [metricstransform, batch]
+      exporters: [otlp, prometheus, debug]
+
